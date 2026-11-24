@@ -5,8 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>수입 관리</title>
 <style>
-:root{--bg:#f5f6f8;--sf:#fff;--tx:#111827;--mu:#6b7280;--ac:#0b7a62;--ac2:#e3f3ee;--bd:#e5e7eb;--up:#0b7a62;--dn:#b42318}
-@media(prefers-color-scheme:dark){:root{--bg:#0f1520;--sf:#172030;--tx:#e8edf5;--mu:#97a3b6;--ac:#3ecfa6;--ac2:#14352d;--bd:#2a364a;--up:#3ecfa6;--dn:#f4796b}}
+:root{color-scheme:dark;--bg:#0b1118;--sf:#121b26;--tx:#e7edf5;--mu:#8c9db3;--ac:#35d0a0;--ac2:#0f2f29;--bd:#1f2d3d;--up:#35d0a0;--dn:#ff7b6b}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.5 -apple-system,"Apple SD Gothic Neo","Noto Sans KR","Malgun Gothic",sans-serif;font-variant-numeric:tabular-nums}
 main{max-width:1800px;margin:0 auto;padding:16px 20px 48px}
@@ -15,12 +14,12 @@ main{max-width:1800px;margin:0 auto;padding:16px 20px 48px}
 .wrap>.pane>*{break-inside:avoid;margin:0 0 16px!important}
 #list{max-height:340px;overflow:auto}
 button,input{font:inherit;color:inherit}
-input{background:var(--sf);border:1px solid var(--bd);border-radius:8px;padding:10px 12px;min-width:0}
+input{background:var(--bg);border:1px solid var(--bd);border-radius:8px;padding:10px 12px;min-width:0}
 input:focus,button:focus-visible,summary:focus-visible{outline:2px solid var(--ac);outline-offset:1px}
 button{background:var(--tx);color:var(--bg);border:0;border-radius:8px;padding:10px 16px;cursor:pointer;font-weight:600}
 button.ghost{background:transparent;color:var(--mu);border:1px solid var(--bd);font-weight:500}
 button.x{background:none;color:var(--mu);padding:2px 8px;font-size:20px}
-.nav{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:12px}
+.nav{flex-wrap:wrap;display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:12px}
 .nav h1{margin:0;font-size:22px;letter-spacing:-.3px}
 .mn{display:flex;gap:6px}.mn button{padding:6px 12px}
 .box{background:var(--sf);border:1px solid var(--bd);border-radius:12px;padding:18px}
@@ -80,9 +79,18 @@ svg .goal{stroke:var(--dn);stroke-width:2}
 svg .br{fill:var(--mu);opacity:.35}
 svg .br.on{fill:var(--ac);opacity:1}
 svg .dot{fill:var(--ac)}
+.wr{padding:10px 0;border-bottom:1px solid var(--bd)}
+.wr:last-child{border-bottom:0}
+.wh{display:flex;align-items:baseline;gap:8px}
+.wh .k{flex:1}
+.wb{height:6px;background:var(--bd);border-radius:3px;margin-top:6px;overflow:hidden}
+.wb i{display:block;height:100%;background:var(--ac)}
+.wb.p i{background:var(--mu);opacity:.6}
+.wv{display:flex;justify-content:space-between;gap:8px;margin-top:6px;font-weight:700}
+.wv .k{font-weight:400}
 .legend{display:flex;gap:14px;flex-wrap:wrap;color:var(--mu);font-size:13px;margin-top:6px}
 .legend i{display:inline-block;width:14px;height:3px;border-radius:2px;margin-right:5px;vertical-align:middle}
-.ov{position:fixed;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;padding:16px;z-index:10}
+.ov{position:fixed;inset:0;background:rgba(0,0,0,.65);display:flex;align-items:center;justify-content:center;padding:16px;z-index:10}
 .ov[hidden]{display:none}
 .mb{background:var(--sf);border-radius:12px;width:100%;max-width:420px;max-height:90vh;overflow:auto;padding:16px 18px}
 .mh{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
@@ -95,7 +103,7 @@ svg .dot{fill:var(--ac)}
 <main>
   <header class="nav">
     <h1 id="title"></h1>
-    <div class="mn"><button class="ghost" onclick="mv(-1)" aria-label="이전 달">‹</button><button class="ghost" onclick="goNow()">이번 달</button><button class="ghost" onclick="mv(1)" aria-label="다음 달">›</button></div>
+    <div class="mn"><span id="ghs" class="k"></span><button class="ghost" onclick="mv(-1)" aria-label="이전 달">‹</button><button class="ghost" onclick="goNow()">이번 달</button><button class="ghost" onclick="mv(1)" aria-label="다음 달">›</button></div>
   </header>
   <div class="wrap">
 
@@ -149,6 +157,11 @@ svg .dot{fill:var(--ac)}
   <div class="pane" id="t-trend">
     <section class="box"><h2>수입 비교</h2><div class="grid" id="cmp"></div></section>
     <section class="box">
+      <h2>주차별 비교 (전월 대비)</h2>
+      <div id="wk"></div>
+      <div class="legend"><span><i style="background:var(--ac)"></i>이번 달</span><span><i style="background:var(--mu)"></i>전월 같은 주차</span></div>
+    </section>
+    <section class="box">
       <h2>누적 수입 추이</h2>
       <div id="lineChart"></div>
       <div class="legend"><span><i style="background:var(--ac)"></i>이번 달</span><span><i style="background:var(--mu)"></i>전월</span><span><i style="background:var(--dn)"></i>목표</span></div>
@@ -184,6 +197,14 @@ svg .dot{fill:var(--ac)}
       <ul id="fixed" style="margin-top:8px"></ul>
     </section>
     <section class="box">
+      <h2>GitHub 자동 저장</h2>
+      <div class="sub" style="margin:-6px 0 12px">입력·수정할 때마다 저장소 파일에 자동 반영하고, 열 때 자동으로 불러와요.</div>
+      <div class="row"><input id="gRepo" placeholder="저장소 (계정/저장소)"><input id="gPath" placeholder="파일 경로" value="income-data.json"><input id="gBr" placeholder="브랜치" value="main" style="flex:0 1 100px"></div>
+      <div class="row" style="margin-top:8px"><input id="gTok" type="password" autocomplete="off" placeholder="Personal access token"><button onclick="ghConnect()">연결 저장</button><button class="ghost" onclick="ghSync()">지금 동기화</button><button class="ghost" onclick="ghOff()">연결 해제</button></div>
+      <div class="sub" id="ghs2"></div>
+      <details><summary>토큰 만드는 법</summary><div class="sub">GitHub → Settings → Developer settings → Personal access tokens → Fine-grained tokens → Generate. 저장소는 <b>이 저장소만</b> 선택하고, 권한은 <b>Contents: Read and write</b> 하나만 주세요. 토큰은 이 브라우저에만 저장돼요. 저장소가 공개면 수입 내역도 공개되니 <b>비공개 저장소</b>를 권해요.</div></details>
+    </section>
+    <section class="box">
       <h2>백업</h2>
       <div class="sub" style="margin:-6px 0 12px">데이터는 이 브라우저에 저장돼요. 기기를 바꾸기 전에 백업하세요.</div>
       <div class="row">
@@ -216,7 +237,8 @@ const KEY='income-tracker-v1';
 const blank=()=>({goals:{},entries:[],fixed:[],gen:{}});
 let S=load();
 function load(){try{return Object.assign(blank(),JSON.parse(localStorage.getItem(KEY)))}catch(e){return blank()}}
-function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+function persist(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+function save(){S.updatedAt=Date.now();persist();if(ghCfg()){ghDirty(true);ghSchedule()}}
 const $=id=>document.getElementById(id);
 const pad=n=>String(n).padStart(2,'0');
 const ymOf=d=>d.getFullYear()+'-'+pad(d.getMonth()+1);
@@ -298,10 +320,23 @@ function render(){
   $('list').innerHTML=es.length?es.map(e=>'<li><span class="d">'+e.date.slice(8)+'일</span><span class="m">'+esc(e.memo||'')+(e.fid?' <span class="tag">고정</span>':'')+'</span><span class="a">'+won(e.amount)+'</span><button class="x" onclick="delEntry(\''+e.id+'\')" aria-label="삭제">×</button></li>').join(''):'<div class="empty">이 달에 입력한 수입이 없습니다. 위에서 첫 수입을 추가하세요.</div>';
   $('fixed').innerHTML=S.fixed.length?S.fixed.map(f=>'<li><span class="m">'+esc(f.name)+' · 매달 '+f.day+'일</span><span class="k">시작</span><input type="month" value="'+f.start+'" onchange="setFixedStart(\''+f.id+'\',this.value)" aria-label="시작 월" style="width:140px;padding:4px 6px"><span class="a">'+won(f.amount)+'</span><button class="x" onclick="delFixed(\''+f.id+'\')" aria-label="삭제">×</button></li>').join(''):'<div class="empty">등록된 고정수입이 없습니다.</div>';
   const dd=$('eDate');if(!dd.value||!dd.value.startsWith(cur))dd.value=cur===nm?todayS():cur+'-01';
-  renderCal();lineChart();barChart();renderBal();renderCards();
+  renderCal();lineChart();barChart();renderBal();renderCards();renderWeeks();
   if(!$('fStart').value)$('fStart').value=nowM();
 }
 
+function renderWeeks(){
+  const n=dim(cur),pm=shift(cur,-1),pn=dim(pm),nm=nowM(),td=new Date().getDate(),W=n>28?5:4;
+  const sr=(m,a,b)=>S.entries.reduce((x,e)=>{const d=+e.date.slice(8);return e.date.startsWith(m)&&d>=a&&d<=b?x+e.amount:x},0);
+  const rows=[];
+  for(let i=0;i<W;i++){const a=i*7+1,b=i==4?n:a+6,pb=i==4?pn:Math.min(a+6,pn);rows.push({a,b,c:sr(cur,a,b),p:a>pn?0:sr(pm,a,pb)})}
+  const mx=Math.max(1,...rows.flatMap(r=>[r.c,r.p]));
+  $('wk').innerHTML=rows.map((r,i)=>{
+    const d=r.c-r.p,live=cur===nm&&td>=r.a&&td<=r.b,fut=(cur===nm&&td<r.a)||cur>nm;
+    const df=r.p>0?(d>=0?'▲ ':'▼ ')+Math.abs(d/r.p*100).toFixed(0)+'%':(r.c>0?'신규':'-');
+    const cls=fut?'':(r.p>0||r.c>0?(d>=0?'up':'dn'):'');
+    return '<div class="wr"><div class="wh"><b>'+(i+1)+'주차</b><span class="k">'+r.a+'–'+r.b+'일'+(live?' · 진행 중':'')+'</span><b class="'+cls+'">'+(fut?'-':df)+'</b></div><div class="wb"><i style="width:'+r.c/mx*100+'%"></i></div><div class="wb p"><i style="width:'+r.p/mx*100+'%"></i></div><div class="wv"><span>'+won(r.c)+'</span><span class="k">전월 '+won(r.p)+'</span></div></div>';
+  }).join('');
+}
 const short=v=>Math.floor(v).toLocaleString('ko-KR');
 const kfmt=v=>v>=1e4?(Math.round(v/1e3)/10)+'만':short(v);
 function renderCal(){
@@ -336,8 +371,14 @@ function renderCards(){
   }
   const card=(k,v,sb,c)=>'<div class="c"><div class="k">'+k+'</div><div class="v '+(c||'')+'">'+v+'</div><div class="sub">'+sb+'</div></div>';
   const dl=nx?(nx.due===t?'D-day':'D-'+dayDiff(t,nx.due)):'';
+  const ds=S.entries.map(e=>e.date.slice(0,7)).sort(),fm=ds[0]||nm;let ml=[];for(let m=fm;m<=nm;m=shift(m,1))ml.push(m);
+  if(ml.length>1)ml.pop();
+  const mAvg=ml.reduce((a,m)=>a+total(m),0)/Math.max(ml.length,1),pmm=shift(cur,-1);
   $('cards').innerHTML=
-    card('이번 달 수입',won(sum),dayN?'일평균 '+won(sum/dayN):'-')+
+    card('이번 달 수입',won(sum),gs.length?'목표 '+won(goal):'-')+
+    card('전월 대비',pm.v,pm.s,pm.c)+
+    card('일평균',dayN?won(sum/dayN):'-','전월 '+won(total(pmm)/dim(pmm)))+
+    card('월평균',won(mAvg),ml.length+'개월 평균'+(ml.length>0&&nm!==fm?' (진행 중인 달 제외)':''))+
     card('현재 소지금',won(holdings()),'시작 소지금 + 모든 수입',holdings()<0?'dn':'')+
     card('하루 필요 평균',need,needS);
 }
@@ -510,8 +551,95 @@ document.addEventListener('keydown',e=>{
   if(t&&t.tagName==='INPUT'&&t.value!=='')return;
   e.preventDefault();moveDay(e.key==='ArrowLeft'?-1:1);
 });
-S=migrate(S);save();
-applyFixed();render();
+
+// ===== GitHub 자동 저장/불러오기 (설정은 별도 키에 저장되어 백업 파일에 포함되지 않음) =====
+const GK='income-gh-v1';
+const ghCfg=()=>{try{const c=JSON.parse(localStorage.getItem(GK));return c&&c.repo&&c.token?c:null}catch(e){return null}};
+const ghDirty=v=>{try{if(v===undefined)return localStorage.getItem('income-gh-dirty')==='1';v?localStorage.setItem('income-gh-dirty','1'):localStorage.removeItem('income-gh-dirty')}catch(e){}};
+let ghSha=null,ghBusy=false,ghAgain=false,ghT;
+const hm=()=>{const d=new Date();return pad(d.getHours())+':'+pad(d.getMinutes())};
+const b64e=t=>{const b=new TextEncoder().encode(t);let x='';for(let i=0;i<b.length;i+=8192)x+=String.fromCharCode.apply(null,b.subarray(i,i+8192));return btoa(x)};
+const b64d=t=>new TextDecoder().decode(Uint8Array.from(atob(t.replace(/\s/g,'')),c=>c.charCodeAt(0)));
+const ghUrl=c=>'https://api.github.com/repos/'+c.repo+'/contents/'+c.path.split('/').map(encodeURIComponent).join('/');
+const ghH=c=>({Authorization:'Bearer '+c.token,Accept:'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28'});
+const isEmpty=()=>!S.entries.length&&!S.fixed.length&&!Object.keys(S.goals).length;
+function ghStat(t,bad){['ghs','ghs2'].forEach(i=>{const e=$(i);if(e){e.textContent=t;e.className=bad?'k dn':'k'}})}
+const ghErr=st=>st===401?'토큰이 올바르지 않아요':st===403?'쓰기 권한이 없어요 (Contents: Read and write 필요)':st===404?'저장소·브랜치 이름을 확인하세요':'GitHub 오류 '+st;
+async function ghGet(c){
+  const r=await fetch(ghUrl(c)+'?ref='+encodeURIComponent(c.branch)+'&t='+Date.now(),{headers:ghH(c),cache:'no-store'});
+  if(r.status===404){ghSha=null;return null}
+  if(!r.ok)throw new Error(ghErr(r.status));
+  const j=await r.json();ghSha=j.sha;return JSON.parse(b64d(j.content));
+}
+function applyRemote(d){S=migrate(Object.assign(blank(),d));persist();ghDirty(false);render();ghStat('☁ 불러옴 '+hm())}
+function ghSchedule(){if(!ghCfg())return;clearTimeout(ghT);ghStat('☁ 저장 대기…');ghT=setTimeout(ghPush,1500)}
+async function ghPush(){
+  const c=ghCfg();if(!c)return;
+  if(ghBusy){ghAgain=true;return}
+  ghBusy=true;ghStat('☁ 저장 중…');
+  try{
+    if(!S.updatedAt){S.updatedAt=Date.now();persist()}
+    for(let k=0;k<2;k++){
+      const body={message:'update income data '+todayS()+' '+hm(),content:b64e(JSON.stringify(S,null,2)),branch:c.branch};
+      if(ghSha)body.sha=ghSha;
+      const r=await fetch(ghUrl(c),{method:'PUT',headers:Object.assign({'Content-Type':'application/json'},ghH(c)),body:JSON.stringify(body)});
+      if(r.ok){const j=await r.json();ghSha=j.content.sha;ghDirty(false);ghStat('☁ 저장됨 '+hm());break}
+      if((r.status===409||r.status===422)&&k===0){
+        const rm=await ghGet(c);
+        if(rm&&(rm.updatedAt||0)>(S.updatedAt||0)&&!confirm('다른 기기에서 더 최근에 저장한 내용이 있어요.\n이 기기 내용으로 덮어쓸까요? (취소: GitHub 내용을 불러옵니다)')){applyRemote(rm);break}
+        continue;
+      }
+      throw new Error(ghErr(r.status));
+    }
+  }catch(e){ghStat('⚠ GitHub 저장 실패: '+(e.message||'네트워크 오류')+' (이 기기에는 저장됨)',1)}
+  ghBusy=false;if(ghAgain){ghAgain=false;ghSchedule()}
+}
+async function ghSync(){
+  const c=ghCfg();if(!c){ghStat('');return}
+  if(ghBusy)return;
+  ghStat('☁ 동기화 중…');
+  try{
+    const rm=await ghGet(c);
+    if(!rm){if(!isEmpty())await ghPush();else ghStat('☁ 연결됨 (GitHub에 아직 파일이 없어요)');return}
+    const rt=rm.updatedAt||0,lt=S.updatedAt||0;
+    if(isEmpty()){applyRemote(rm);return}
+    if(ghDirty()){
+      if(rt>lt&&!confirm('다른 기기에서 더 최근에 저장한 내용이 있어요.\n이 기기 내용으로 덮어쓸까요? (취소: GitHub 내용을 불러옵니다)')){applyRemote(rm);return}
+      await ghPush();return;
+    }
+    if(rt>lt){applyRemote(rm);return}
+    if(lt>rt){await ghPush();return}
+    if(!rt&&JSON.stringify(rm)!==JSON.stringify(S)){
+      if(confirm('GitHub 파일과 이 기기 데이터가 모두 있어요.\n확인: GitHub 파일을 불러오기 / 취소: 이 기기 데이터를 GitHub에 덮어쓰기'))applyRemote(rm);
+      else{save();await ghPush()}
+      return;
+    }
+    ghStat('☁ 동기화됨 '+hm());
+  }catch(e){ghStat('⚠ 동기화 실패: '+(e.message||'네트워크 오류'),1)}
+}
+function ghFill(){const c=ghCfg();if(c){$('gRepo').value=c.repo;$('gPath').value=c.path;$('gBr').value=c.branch;$('gTok').placeholder='토큰 저장됨 (바꾸려면 새로 입력)'}}
+function ghConnect(){
+  const repo=$('gRepo').value.trim().replace(/^https?:\/\/github\.com\//,'').replace(/\.git$/,'').replace(/\/$/,''),
+    path=$('gPath').value.trim().replace(/^\/+/,'')||'income-data.json',branch=$('gBr').value.trim()||'main',token=$('gTok').value.trim()||(ghCfg()||{}).token;
+  if(!/^[\w.-]+\/[\w.-]+$/.test(repo)||!token){alert('저장소(계정/저장소)와 토큰을 입력하세요.');return}
+  try{localStorage.setItem(GK,JSON.stringify({repo,path,branch,token}))}catch(e){}
+  $('gTok').value='';ghFill();ghSha=null;
+  ghSync().then(()=>{applyFixed();render()});
+}
+function ghOff(){
+  if(!confirm('GitHub 연결을 해제할까요? 이 기기 데이터와 GitHub 파일은 그대로 남아요.'))return;
+  try{localStorage.removeItem(GK)}catch(e){}ghDirty(false);ghStat('');$('gTok').placeholder='Personal access token';
+}
+async function autoLoadFile(){ // 토큰 없이도: 같은 폴더의 income-data.json을 (이 기기 데이터가 비어 있을 때만) 불러옴
+  try{const r=await fetch('income-data.json',{cache:'no-store'});if(!r.ok)return;const d=await r.json();if(!Array.isArray(d.entries))return;
+    S=migrate(Object.assign(blank(),d));persist();applyFixed();render();toast('저장 파일을 불러왔어요')}catch(e){}
+}
+document.addEventListener('visibilitychange',()=>{if(!document.hidden&&ghCfg()&&!ghDirty()&&!ghBusy)ghSync().then(()=>{applyFixed();render()})});
+window.addEventListener('beforeunload',e=>{if(ghCfg()&&ghDirty()){e.preventDefault();e.returnValue=''}});
+ghFill();
+S=migrate(S);persist();
+if(ghCfg()){render();ghSync().then(()=>{applyFixed();render()})}
+else{applyFixed();render();if(isEmpty())autoLoadFile()}
 </script>
 </body>
 </html>
