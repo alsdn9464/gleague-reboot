@@ -2363,6 +2363,13 @@
       "amount": 25778,
       "memo": "",
       "ts": 1795508304108
+    },
+    {
+      "id": "mwugehemk6um",
+      "date": "2026-11-24",
+      "amount": 47122,
+      "memo": "",
+      "ts": 1795510179742
     }
   ],
   "fixed": [
@@ -2423,8 +2430,11 @@
     "mwuc8z0mki8e_2026-09": 1,
     "mwuc8z0mki8e_2026-10": 1
   },
+  "rg": [],
+  "gg": {},
   "balance": -42868972,
   "balanceAt": "2026-11-24",
   "balanceTs": 1795504506472,
-  "goalBasis": "balance"
+  "goalBasis": "balance",
+  "updatedAt": 1795510179742
 }
