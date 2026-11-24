@@ -79,6 +79,10 @@ svg .goal{stroke:var(--dn);stroke-width:2}
 svg .br{fill:var(--mu);opacity:.35}
 svg .br.on{fill:var(--ac);opacity:1}
 svg .dot{fill:var(--ac)}
+.fold>summary{cursor:pointer;font-weight:700;font-size:16px;color:var(--tx);padding:0;list-style:none}
+.fold>summary::after{content:"+";float:right;color:var(--mu)}
+.fold[open]>summary{margin-bottom:12px}
+.fold[open]>summary::after{content:"–"}
 .wr{padding:10px 0;border-bottom:1px solid var(--bd)}
 .wr:last-child{border-bottom:0}
 .wh{display:flex;align-items:baseline;gap:8px}
@@ -119,14 +123,15 @@ svg .dot{fill:var(--ac)}
     <div class="cards" id="cards"></div>
     <section class="box">
       <div class="hd"><h2 id="gTitle">목표</h2>
-        <div class="row" style="gap:6px"><span class="k">기준</span><button id="bsInc" class="ghost seg" onclick="setBasis('income')">이번 달 수입</button><button id="bsBal" class="ghost seg" onclick="setBasis('balance')">현재 소지금</button></div>
+        <div class="row" style="gap:6px"><span class="k">기준</span><button id="bsInc" class="ghost seg" onclick="setBasis('income')"><span class="ml"></span> 수입</button><button id="bsBal" class="ghost seg" onclick="setBasis('balance')">현재 소지금</button></div>
       </div>
+      <div class="sub" style="margin:0 0 4px">목표를 채우는 기준을 고르세요: 그 달에 번 수입, 또는 지금 가진 소지금.</div>
       <ul id="goalList"></ul>
       <details><summary>+ 목표 추가</summary>
         <div class="row" style="margin-top:8px">
           <input id="gName" type="text" placeholder="이름 (예: 월세)">
           <input id="gAmt" type="number" inputmode="numeric" min="0" placeholder="금액(원)">
-          <input id="gDue" type="date" aria-label="마감일">
+          <input id="gDue" type="date" aria-label="마감일"><label class="k" style="display:flex;gap:6px;align-items:center"><input type="checkbox" id="gRep" style="flex:none;width:18px;height:18px;padding:0"> 매달 반복</label>
           <button onclick="addGoal()">추가</button>
         </div>
         <div class="sub">마감일이 빠른 목표부터 수입이 차례로 채워지는 것으로 계산해요.</div>
@@ -151,20 +156,20 @@ svg .dot{fill:var(--ac)}
         <button onclick="addEntry()">추가</button>
       </div>
     </section>
-    <section class="box"><h2>이번 달 내역</h2><ul id="list"></ul></section>
+    <section class="box"><h2><span class="ml"></span> 내역</h2><ul id="list"></ul></section>
   </div>
 
   <div class="pane" id="t-trend">
-    <section class="box"><h2>수입 비교</h2><div class="grid" id="cmp"></div></section>
+    <section class="box"><h2>전년 동월 비교</h2><div class="grid" id="cmp"></div></section>
     <section class="box">
       <h2>주차별 비교 (전월 대비)</h2>
       <div id="wk"></div>
-      <div class="legend"><span><i style="background:var(--ac)"></i>이번 달</span><span><i style="background:var(--mu)"></i>전월 같은 주차</span></div>
+      <div class="legend"><span><i style="background:var(--ac)"></i><span class="ml"></span></span><span><i style="background:var(--mu)"></i>전월 같은 주차</span></div>
     </section>
     <section class="box">
       <h2>누적 수입 추이</h2>
       <div id="lineChart"></div>
-      <div class="legend"><span><i style="background:var(--ac)"></i>이번 달</span><span><i style="background:var(--mu)"></i>전월</span><span><i style="background:var(--dn)"></i>목표</span></div>
+      <div class="legend"><span><i style="background:var(--ac)"></i><span class="ml"></span></span><span><i style="background:var(--mu)"></i>전월</span><span><i style="background:var(--dn)"></i>목표</span></div>
     </section>
     <section class="box">
       <h2>최근 12개월 수입</h2>
@@ -174,8 +179,7 @@ svg .dot{fill:var(--ac)}
   </div>
 
   <div class="pane" id="t-set">
-    <section class="box">
-      <h2>현재 소지금</h2>
+    <details class="box fold"><summary>현재 소지금</summary>
       <div class="big" style="font-size:30px" id="balVal"></div>
       <div class="sub" id="balSub" style="margin-bottom:12px"></div>
       <div class="row">
@@ -184,9 +188,8 @@ svg .dot{fill:var(--ac)}
         <button class="ghost" onclick="saveBalance('start')">시작 소지금으로 저장</button>
       </div>
       <div class="sub" style="margin-top:8px">‘맞추기’는 지금 실제로 가진 금액을 넣으면 차액을 자동으로 보정해요. 쓴 돈을 반영할 때 사용하세요.</div>
-    </section>
-    <section class="box">
-      <h2>매달 고정수입</h2>
+    </details>
+    <details class="box fold"><summary>매달 고정수입</summary>
       <div class="row">
         <input id="fName" type="text" placeholder="이름 (예: 월급)">
         <input id="fAmt" type="number" inputmode="numeric" placeholder="금액(원)">
@@ -195,24 +198,22 @@ svg .dot{fill:var(--ac)}
         <button onclick="addFixed()">추가</button>
       </div>
       <ul id="fixed" style="margin-top:8px"></ul>
-    </section>
-    <section class="box">
-      <h2>GitHub 자동 저장</h2>
+    </details>
+    <details class="box fold"><summary>GitHub 자동 저장</summary>
       <div class="sub" style="margin:-6px 0 12px">입력·수정할 때마다 저장소 파일에 자동 반영하고, 열 때 자동으로 불러와요.</div>
       <div class="row"><input id="gRepo" placeholder="저장소 (계정/저장소)"><input id="gPath" placeholder="파일 경로" value="income-data.json"><input id="gBr" placeholder="브랜치" value="main" style="flex:0 1 100px"></div>
       <div class="row" style="margin-top:8px"><input id="gTok" type="password" autocomplete="off" placeholder="Personal access token"><button onclick="ghConnect()">연결 저장</button><button class="ghost" onclick="ghSync()">지금 동기화</button><button class="ghost" onclick="ghOff()">연결 해제</button></div>
       <div class="sub" id="ghs2"></div>
       <details><summary>토큰 만드는 법</summary><div class="sub">GitHub → Settings → Developer settings → Personal access tokens → Fine-grained tokens → Generate. 저장소는 <b>이 저장소만</b> 선택하고, 권한은 <b>Contents: Read and write</b> 하나만 주세요. 토큰은 이 브라우저에만 저장돼요. 저장소가 공개면 수입 내역도 공개되니 <b>비공개 저장소</b>를 권해요.</div></details>
-    </section>
-    <section class="box">
-      <h2>백업</h2>
+    </details>
+    <details class="box fold"><summary>백업</summary>
       <div class="sub" style="margin:-6px 0 12px">데이터는 이 브라우저에 저장돼요. 기기를 바꾸기 전에 백업하세요.</div>
       <div class="row">
         <button class="ghost" onclick="exportData()">백업 파일 저장</button>
         <button class="ghost" onclick="document.getElementById('imp').click()">백업 불러오기</button>
         <input id="imp" type="file" accept=".json" hidden onchange="importData(this)">
       </div>
-    </section>
+    </details>
   </div>
 </div>
 </main>
@@ -234,7 +235,8 @@ svg .dot{fill:var(--ac)}
 
 <script>
 const KEY='income-tracker-v1';
-const blank=()=>({goals:{},entries:[],fixed:[],gen:{}});
+const blank=()=>({goals:{},entries:[],fixed:[],gen:{},rg:[],gg:{}});
+let ML='이번 달',listAll=false;
 let S=load();
 function load(){try{return Object.assign(blank(),JSON.parse(localStorage.getItem(KEY)))}catch(e){return blank()}}
 function persist(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
@@ -269,7 +271,13 @@ function applyFixed(){
   if(changed)save();
 }
 
+function ensureRG(m){ // 매달 반복 목표를 해당 달에 한 번씩만 만들어 넣음
+  let ch=false;(S.rg||[]).forEach(r=>{const k=r.id+'_'+m;if(m<r.start||S.gg[k])return;
+    (S.goals[m]=S.goals[m]||[]).push({id:uid(),name:r.name,amount:r.amount,due:m+'-'+pad(Math.min(r.day,dim(m))),rid:r.id});S.gg[k]=1;ch=true});
+  if(ch)save();
+}
 function render(){
+  ML=cur===nowM()?'이번 달':Number(cur.slice(5))+'월';document.querySelectorAll('.ml').forEach(e=>e.textContent=ML);ensureRG(cur);
   const[y,mo]=cur.split('-');
   $('title').textContent=y+'년 '+Number(mo)+'월 수입';
   const nm=nowM(),t=todayS(),sum=total(cur),have=basisAmt(),goal=goalSum(cur),rem=Math.max(goal-have,0),gs=goalStatus();
@@ -278,7 +286,7 @@ function render(){
 
   // 상단 요약
   if(!goal){
-    $('heroLabel').textContent='이번 달 수입';$('heroVal').textContent=won(have);
+    $('heroLabel').textContent=ML+' 수입';$('heroVal').textContent=won(have);
     $('heroSub').textContent='목표를 등록하면 남은 금액과 필요 일평균이 계산됩니다.';
     $('bar').style.width='0';$('barTxt').textContent='';$('need').style.display='none';
   }else{
@@ -298,7 +306,7 @@ function render(){
     const dl=g.past?'마감':(g.due===t?'D-day':'D-'+dayDiff(t,g.due));
     const pc=Math.round(Math.min(Math.max((g.amount-g.rem)/g.amount,0),1)*100);
     const st=g.done?'<span class="up">달성</span>':(g.past?'<span class="dn">'+won(g.rem)+' 부족</span>':won(g.rem)+' 남음 · 하루 '+won(Math.ceil(g.rem/g.days)));
-    return '<li class="g"><div class="gh"><b>'+esc(g.name)+'</b><span class="a">'+won(g.amount)+'</span><button class="x" onclick="delGoal(\''+g.id+'\')" aria-label="삭제">×</button></div><div class="gb"><i style="width:'+pc+'%"></i></div><div class="gs"><span>'+Number(g.due.slice(5,7))+'/'+Number(g.due.slice(8))+' ('+dl+')</span><span>'+st+'</span></div></li>';
+    return '<li class="g"><div class="gh"><b>'+esc(g.name)+'</b>'+(g.rid?'<span class="tag">매달</span>':'')+'<span class="a">'+won(g.amount)+'</span><button class="x" onclick="delGoal(\''+g.id+'\')" aria-label="삭제">×</button></div><div class="gb"><i style="width:'+pc+'%"></i></div><div class="gs"><span>'+Number(g.due.slice(5,7))+'/'+Number(g.due.slice(8))+' ('+dl+')</span><span>'+st+'</span></div></li>';
   }).join('')+'<li class="gt"><span>목표 합계</span><span>'+won(goal)+'</span></li>':'<div class="empty">등록된 목표가 없어요. 아래 ‘목표 추가’에서 등록하세요.</div>';
 
   // 비교
@@ -311,13 +319,11 @@ function render(){
     return '<div><div class="k">'+label+' · '+m.replace('-','.')+'</div><div class="v">'+won(b)+'</div><div class="'+cls+'">'+ratio+'</div></div>';
   };
   const dayN=cur===nm?new Date().getDate():(cur<nm?dim(cur):0);
-  $('cmp').innerHTML=
-    '<div><div class="k">이번 달 합계</div><div class="v">'+won(sum)+'</div><div class="sub">'+(dayN?'일평균 '+won(sum/dayN):'-')+'</div></div>'+
-    cmpHtml('전월',prevM)+cmpHtml('전년 같은 달',lyM);
+  $('cmp').innerHTML=cmpHtml('전년 같은 달',lyM);
 
   // 내역
   const es=S.entries.filter(e=>e.date.startsWith(cur)).sort((a,b)=>b.date.localeCompare(a.date));
-  $('list').innerHTML=es.length?es.map(e=>'<li><span class="d">'+e.date.slice(8)+'일</span><span class="m">'+esc(e.memo||'')+(e.fid?' <span class="tag">고정</span>':'')+'</span><span class="a">'+won(e.amount)+'</span><button class="x" onclick="delEntry(\''+e.id+'\')" aria-label="삭제">×</button></li>').join(''):'<div class="empty">이 달에 입력한 수입이 없습니다. 위에서 첫 수입을 추가하세요.</div>';
+  $('list').innerHTML=es.length?(listAll?es:es.slice(0,10)).map(e=>'<li><span class="d">'+e.date.slice(8)+'일</span><span class="m">'+esc(e.memo||'')+(e.fid?' <span class="tag">고정</span>':'')+'</span><span class="a">'+won(e.amount)+'</span><button class="x" onclick="delEntry(\''+e.id+'\')" aria-label="삭제">×</button></li>').join('')+(es.length>10?'<li><button class="ghost" onclick="listAll=!listAll;render()">'+(listAll?'접기':'더 보기 ('+(es.length-10)+'건)')+'</button></li>':''):'<div class="empty">이 달에 입력한 수입이 없습니다. 위에서 첫 수입을 추가하세요.</div>';
   $('fixed').innerHTML=S.fixed.length?S.fixed.map(f=>'<li><span class="m">'+esc(f.name)+' · 매달 '+f.day+'일</span><span class="k">시작</span><input type="month" value="'+f.start+'" onchange="setFixedStart(\''+f.id+'\',this.value)" aria-label="시작 월" style="width:140px;padding:4px 6px"><span class="a">'+won(f.amount)+'</span><button class="x" onclick="delFixed(\''+f.id+'\')" aria-label="삭제">×</button></li>').join(''):'<div class="empty">등록된 고정수입이 없습니다.</div>';
   const dd=$('eDate');if(!dd.value||!dd.value.startsWith(cur))dd.value=cur===nm?todayS():cur+'-01';
   renderCal();lineChart();barChart();renderBal();renderCards();renderWeeks();
@@ -374,13 +380,15 @@ function renderCards(){
   const ds=S.entries.map(e=>e.date.slice(0,7)).sort(),fm=ds[0]||nm;let ml=[];for(let m=fm;m<=nm;m=shift(m,1))ml.push(m);
   if(ml.length>1)ml.pop();
   const mAvg=ml.reduce((a,m)=>a+total(m),0)/Math.max(ml.length,1),pmm=shift(cur,-1);
+  const upc=S.fixed.filter(f=>f.start<=cur&&!S.gen[f.id+'_'+cur]).reduce((a,f)=>a+f.amount,0),pr=have+upc;
   $('cards').innerHTML=
-    card('이번 달 수입',won(sum),gs.length?'목표 '+won(goal):'-')+
+    card(ML+' 수입',won(sum),gs.length?'목표 '+won(goal):'-')+
     card('전월 대비',pm.v,pm.s,pm.c)+
     card('일평균',dayN?won(sum/dayN):'-','전월 '+won(total(pmm)/dim(pmm)))+
     card('월평균',won(mAvg),ml.length+'개월 평균'+(ml.length>0&&nm!==fm?' (진행 중인 달 제외)':''))+
     card('현재 소지금',won(holdings()),'시작 소지금 + 모든 수입',holdings()<0?'dn':'')+
-    card('하루 필요 평균',need,needS);
+    card('하루 필요 평균',need,needS)+
+    (cur===nm?card('월말 예상 수입',won(sum+upc),goal?(pr>=goal?'목표 '+won(pr-goal)+' 초과 예상':'목표까지 '+won(goal-pr)+' 부족 예상'):(upc?'입금 예정 고정수입 +'+won(upc):'예정된 고정수입 없음'),goal?(pr>=goal?'up':'dn'):''):'');
 }
 let modalDate='';
 function renderBal(){
@@ -461,8 +469,8 @@ function barChart(){
   $('barChart').innerHTML=s+'</svg>';
 }
 
-function mv(n){cur=shift(cur,n);$('eDate').value='';render()}
-function goNow(){cur=nowM();$('eDate').value='';render()}
+function mv(n){listAll=false;cur=shift(cur,n);$('eDate').value='';render()}
+function goNow(){listAll=false;cur=nowM();$('eDate').value='';render()}
 let toastT;
 function toast(m){const t=$('toast');t.textContent=m;t.hidden=false;clearTimeout(toastT);toastT=setTimeout(()=>{t.hidden=true},2800)}
 const holdings=()=>(S.balance||0)+S.entries.reduce((a,e)=>a+e.amount,0);
@@ -477,7 +485,7 @@ function migrate(d){
   const g=d.goals||{};
   Object.keys(g).forEach(m=>{if(!Array.isArray(g[m])){const a=Number(g[m]);g[m]=a>0?[{id:uid(),name:'월 목표',amount:a,due:m+'-'+pad(dim(m))}]:[]}});
   if(d.balance!=null&&!d.balanceTs)d.balanceTs=Date.now();
-  d.goals=g;return d;
+  d.goals=g;d.rg=d.rg||[];d.gg=d.gg||{};return d;
 }
 function goalStatus(){
   const t=todayS(),start=t>cur+'-01'?t:cur+'-01',sum=basisAmt();let acc=0;
@@ -491,10 +499,14 @@ function goalStatus(){
 function addGoal(){
   const name=$('gName').value.trim(),amount=Number($('gAmt').value),due=$('gDue').value;
   if(!(amount>0)||!due.startsWith(cur)){alert('금액과 이 달 안의 마감일을 입력하세요.');return}
-  (S.goals[cur]=S.goals[cur]||[]).push({id:uid(),name:name||'목표',amount,due});
-  save();$('gName').value='';$('gAmt').value='';render();
+  if($('gRep').checked){S.rg=S.rg||[];S.rg.push({id:uid(),name:name||'목표',amount,day:+due.slice(8),start:cur});ensureRG(cur)}else(S.goals[cur]=S.goals[cur]||[]).push({id:uid(),name:name||'목표',amount,due});
+  save();$('gName').value='';$('gAmt').value='';$('gRep').checked=false;render();
 }
-function delGoal(id){S.goals[cur]=(S.goals[cur]||[]).filter(g=>g.id!==id);save();render()}
+function delGoal(id){
+  const g=(S.goals[cur]||[]).find(x=>x.id===id);
+  if(g&&g.rid&&confirm('매달 반복 목표예요. 앞으로의 반복도 해제할까요?\n확인: 반복 해제 + 이 달 삭제 / 취소: 이 달만 삭제'))S.rg=S.rg.filter(r=>r.id!==g.rid);
+  S.goals[cur]=(S.goals[cur]||[]).filter(x=>x.id!==id);save();render();
+}
 function addEntry(){
   const date=$('eDate').value,amount=Number($('eAmt').value);
   if(!date||!(amount>0)){alert('날짜와 0보다 큰 금액을 입력하세요.');return}
